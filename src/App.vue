@@ -1,7 +1,84 @@
 <template>
   <div>
-    {{}}
-    <div>
+    <!-- This is the intro disclaimer page -->
+    <div class="intro" v-if="disclaimer">
+      <h1>The Test</h1>
+      <p>
+        Welcome. The Test is a theatrical production that serves as a data
+        collection tool for graduate research through the University of Glasgow.
+        If you choose to proceed, your participation in the study would consist
+        of watching a forty-minute piece of interactive theatre on your device,
+        and voting on several plot points along the way. Your votes will be
+        anonymously collected as research data. This data will be analysed
+        comparing two different experiences of the same piece of theatre.
+      </p>
+      <br />
+      <p>
+        You will need to take a moment to read the
+        <a
+          target="_blank"
+          href="https://docs.google.com/document/d/1dgmYaCgC6GZ_boEQhekzlAgLx3tdB-EE9ZLqzZb5nb0/edit"
+          >Participant Information Sheet</a
+        >
+        and
+        <a
+          target="_blank"
+          href="https://docs.google.com/document/d/1SfzOrUtSTSGDP73zWVMVdqoduUbPFc6kEOcck54u3No/edit"
+          >Consent Form</a
+        >
+        and agree to their terms before you proceed. Because this is a research
+        endeavor, you may not watch the show multiple times to select other
+        endings. In order to watch this show, you agree that your choices are
+        final.
+      </p>
+      <br />
+      <p>Ready to watch?</p>
+      <legend>
+        Please confirm that you have done the following before clicking submit.
+      </legend>
+      <input id="plain-lang" type="checkbox" value="plain-lang" required />
+      <label for="plain-lang"
+        >I have read and agree to the information in the participant information
+        sheet</label
+      >
+      <br />
+      <input id="consent" type="checkbox" value="consent" required />
+      <label for="consent"
+        >I have read and agree to the terms outlined in the consent form</label
+      >
+      <br />
+      <div @click="submitDisclaimer()">SUBMIT</div>
+    </div>
+    <!-- This is the after show page -->
+    <div class="afterShow" v-if="afterShow">
+      <h1>Thank you for watching The Test.</h1>
+      <p>
+        If you feel so inclined, please share it with people you think might be
+        interested. As this is part of my dissertation, the more data, the
+        better!
+      </p>
+
+      <div class="divider"></div>
+
+      <h3>Artist's Note:</h3>
+      <p>
+        I debated adding this note at all, since one always hopes that their art
+        speaks for them. But in this short little play, I tried to get into as
+        many heads as I possibly could, and make decisions as open-ended as
+        possible. I hope that, whatever choices you made in this play, you think
+        about for a little while longer. Were you choosing the most interesting
+        plot? If so, what makes that interesting? Were you choosing what you
+        thought you would do? If so, why do you choose like that? I have
+        opinions that I hope come through in the premise of this project if
+        nothing else, but my biggest hope for this work is that it gives you
+        something to think about and talk about that maybe you wouldn't have
+        gotten to without it. We may not be peloton-ing for our lives today, but
+        we certainly deserve a better world.
+      </p>
+      <p>-Elisabeth</p>
+    </div>
+    <!-- This is the actual show itself  -->
+    <div v-if="!disclaimer && !afterShow">
       <iframe
         v-if="intro === true"
         id="start-Q1"
@@ -14,101 +91,116 @@
         allowfullscreen
         @mouseover="timer(currentVideoLength)"
       ></iframe>
-    </div>
 
-    <iframe
-      v-if="intro === false"
-      id="start-Q1"
-      width="560"
-      height="315"
-      :src="urls[videoIndex][videoSubIndex]"
-      title="YouTube video player"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen
-      @mouseover="timer(currentVideoLength)"
-    ></iframe>
+      <iframe
+        v-if="intro === false"
+        id="start-Q1"
+        width="560"
+        height="315"
+        :src="urls[videoIndex][videoSubIndex]"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        @mouseover="timer(currentVideoLength)"
+      ></iframe>
 
-    <!-- Initial question -->
-    <div v-if="intro === true && isVideoComplete === true">
-      <p><strong>Do you want the blue shirt or the white shirt?</strong></p>
-      <p @click="selectShirt('Blue')" class="option">Blue</p>
-      <p @click="selectShirt('White')" class="option">White</p>
-    </div>
+      <!-- Initial question -->
+      <div v-if="intro === true && isVideoComplete === true">
+        <p><strong>Do you want the blue shirt or the white shirt?</strong></p>
+        <p @click="selectShirt('Blue')" class="option">Blue</p>
+        <p @click="selectShirt('White')" class="option">White</p>
+      </div>
 
-    <div v-if="step === 0 && intro === false">
-      <p><strong>Do you want to go to a bar or to go to a library??</strong></p>
-      <p @click="recordAnswer('Bar', step)" class="option">Bar</p>
-      <p @click="recordAnswer('Library', step)" class="option">Library</p>
-    </div>
+      <div v-if="step === 0 && intro === false && isVideoComplete === true">
+        <p>
+          <strong>Do you want to go to a bar or to go to a library??</strong>
+        </p>
+        <p @click="recordAnswer('Bar', step)" class="option">Bar</p>
+        <p @click="recordAnswer('Library', step)" class="option">Library</p>
+      </div>
 
-    <div v-if="step === 1">
-      <p>
-        <strong
-          >Do you want to ask Jonah why he pushed back on Brett or tell Jonah
-          not to argue with Brett?</strong
-        >
-      </p>
-      <p @click="recordAnswer('Ask', step)" class="option">Ask why?</p>
-      <p @click="recordAnswer('Tell', step)" class="option">Tell him to stop</p>
-    </div>
+      <div v-if="step === 1 && isVideoComplete === true">
+        <p>
+          <strong
+            >Do you want to ask Jonah why he pushed back on Brett or tell Jonah
+            not to argue with Brett?</strong
+          >
+        </p>
+        <p @click="recordAnswer('Ask', step)" class="option">Ask why?</p>
+        <p @click="recordAnswer('Tell', step)" class="option">
+          Tell him to stop
+        </p>
+      </div>
 
-    <div v-if="step === 2">
-      <p>
-        <strong
-          >Do you tell her what just happened with your brother or
-          deflect?</strong
-        >
-      </p>
-      <p @click="recordAnswer('Tell', step)" class="option">Tell her.</p>
-      <p @click="recordAnswer('Deflect', step)" class="option">Deflect.</p>
-    </div>
+      <div v-if="step === 2 && isVideoComplete === true">
+        <p>
+          <strong
+            >Do you tell her what just happened with your brother or
+            deflect?</strong
+          >
+        </p>
+        <p @click="recordAnswer('Tell', step)" class="option">Tell her.</p>
+        <p @click="recordAnswer('Deflect', step)" class="option">Deflect.</p>
+      </div>
 
-    <div v-if="step === 3">
-      <p>
-        <strong
-          >Do you think it’s better to commit a dangerous act for necessary
-          change, or do you think violent change could be worse?</strong
-        >
-      </p>
-      <p @click="recordAnswer('Do', step)" class="option">Do something.</p>
-      <p @click="recordAnswer('Avoid', step)" class="option">Avoid violence.</p>
-    </div>
+      <div v-if="step === 3 && isVideoComplete === true">
+        <p>
+          <strong
+            >Do you think it’s better to commit a dangerous act for necessary
+            change, or do you think violent change could be worse?</strong
+          >
+        </p>
+        <p @click="recordAnswer('Do', step)" class="option">Do something.</p>
+        <p @click="recordAnswer('Avoid', step)" class="option">
+          Avoid violence.
+        </p>
+      </div>
 
-    <div v-if="step === 4">
-      <p>
-        <strong>
-          <p>
-            <strong>Do you help them or try to talk them out of it?</strong>
-          </p>
-        </strong>
-      </p>
-      <p @click="recordAnswer('Help', step)" class="option">Help them.</p>
-      <p @click="recordAnswer('Talk', step)" class="option">Talk them down.</p>
-    </div>
+      <div v-if="step === 4 && isVideoComplete === true">
+        <p>
+          <strong>
+            <p>
+              <strong>Do you help them or try to talk them out of it?</strong>
+            </p>
+          </strong>
+        </p>
+        <p @click="recordAnswer('Help', step)" class="option">Help them.</p>
+        <p @click="recordAnswer('Talk', step)" class="option">
+          Talk them down.
+        </p>
+      </div>
 
-    <div v-if="step === 5">
-      <p><strong>Do you cover for the radicals or turn them in?</strong></p>
-      <p @click="recordAnswer('Cover', step)" class="option">Cover for them.</p>
-      <p @click="recordAnswer('Turn', step)" class="option">Turn them in.</p>
-    </div>
+      <div v-if="step === 5 && isVideoComplete === true">
+        <p><strong>Do you cover for the radicals or turn them in?</strong></p>
+        <p @click="recordAnswer('Cover', step)" class="option">
+          Cover for them.
+        </p>
+        <p @click="recordAnswer('Turn', step)" class="option">Turn them in.</p>
+      </div>
 
-    <div v-if="step === 6">
-      <p>
-        <strong>
-          <p><strong>Do you join her or let her go alone?</strong></p>
-        </strong>
-      </p>
-      <p @click="recordAnswer('Join', step)" class="option">Join her.</p>
-      <p @click="recordAnswer('Let', step)" class="option">Let her go alone.</p>
-    </div>
+      <div v-if="step === 6 && isVideoComplete === true">
+        <p>
+          <strong>
+            <p><strong>Do you join her or let her go alone?</strong></p>
+          </strong>
+        </p>
+        <p @click="recordAnswer('Join', step)" class="option">Join her.</p>
+        <p @click="recordAnswer('Let', step)" class="option">
+          Let her go alone.
+        </p>
+      </div>
 
-    <div v-if="step === 7">
-      <p><strong>Do you blow up the centre or walk away?</strong></p>
-      <p @click="recordAnswer('Blow', step)" class="option">
-        Blow up the center.
-      </p>
-      <p @click="recordAnswer('Walk', step)" class="option">Walk away.</p>
+      <div v-if="step === 7 && isVideoComplete === true">
+        <p><strong>Do you blow up the centre or walk away?</strong></p>
+        <p @click="recordAnswer('Blow', step)" class="option">
+          Blow up the center.
+        </p>
+        <p @click="recordAnswer('Walk', step)" class="option">Walk away.</p>
+      </div>
+      <div v-if="step === 8 && isVideoComplete === true">
+        <button @click="afterShow = true">Post-Show Bios</button>
+      </div>
     </div>
   </div>
 </template>
@@ -120,7 +212,10 @@ export default {
   name: "App",
   data() {
     return {
+      afterShow: false,
+      disclaimer: true,
       intro: true,
+      mainPhase: false,
       currentVideoLength: 4800,
       isVideoComplete: false,
       step: 0,
@@ -214,6 +309,8 @@ export default {
     nextStep() {
       this.step = this.step + 1;
       this.hasTimerStarted = false;
+
+      this.isVideoComplete = false;
     },
     selectShirt(selection) {
       this.shirtSelection = selection;
@@ -229,6 +326,7 @@ export default {
 
       this.intro = false;
       this.hasTimerStarted = false;
+      this.isVideoComplete = false;
     },
     recordAnswer(selection, currentStep) {
       if (currentStep === 0) {
@@ -345,10 +443,16 @@ export default {
       if (this.hasTimerStarted === false) {
         this.hasTimerStarted = true;
         console.log("timer started");
-        setTimeout(() => {}, time);
-        this.isVideoComplete = true;
+        setTimeout(() => {
+          this.isVideoComplete = true;
+        }, time);
       } else {
       }
+    },
+    submitDisclaimer() {
+      this.disclaimer = false;
+      this.mainPhase = true;
+      console.log(this.disclaimer);
     },
   },
 };
